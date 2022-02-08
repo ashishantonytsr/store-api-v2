@@ -9,33 +9,40 @@ const app = express()
 const connectDB = require('./db/connect')
 
 // routers import
+const companyAuth = require('./routes/company-auth')
+const userAuth = require('./routes/user-auth')
+const productsRoute = require('./routes/products')
 
 // middlewares import
 const errorHandlerMiddleware = require('./middlewares/error-handler')
 const notFoundMiddleware = require('./middlewares/not-found')
 
-
 // json middleware
 app.use(express.json())
 
 // routes
-app.get('/', (req,res)=>{
-	res.send('store-api-v2')
+app.get('/', (req, res) => {
+  res.send('store-api-v2')
 })
+app.use('/api/v2/company/auth', companyAuth)
+app.use('/api/v2/auth', userAuth)
+app.use('/api/v2/products', productsRoute)
 
 // middlewares
 app.use(errorHandlerMiddleware)
 app.use(notFoundMiddleware)
 
 const port = process.env.PORT
-const start = async()=>{
-	try {
-		console.log('Connecting to Database...');
-		await connectDB(process.env.MONGO_URI)
-		await app.listen(port, ()=> console.log(`Server is listening on port ${port}`) )
-	} catch (error) {
-		console.log(error);		
-	}
+const start = async () => {
+  try {
+    console.log('Connecting to Database...')
+    await connectDB(process.env.MONGO_URI)
+    await app.listen(port, () =>
+      console.log(`Server is listening on port ${port}`)
+    )
+  } catch (error) {
+    console.log(error)
+  }
 }
 
 start()
