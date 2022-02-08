@@ -1,28 +1,44 @@
-const Company = require('../models/Company')
+const { StatusCodes } = require('http-status-codes')
+const { BadRequestError, UnauthenticatedError } = require('../errors')
+const CompanyModel = require('../models/Company')
 
 const register = async (req, res) => {
-  const { name, email, password, contact_number } = req.body
-  try {
-    const company = await Company.create({
-      name,
-      email,
-      password,
-      contact_number,
-    })
-    res
-      .status(200)
-      .json({
-        success: true,
-        msg: `Added company ${company.name}`,
-        data: company,
-      })
-  } catch (error) {
-    console.log(error)
-  }
+  const company = await CompanyModel.create({ ...req.body })
+  const token = company.createJWT()
+
+  res.status(StatusCodes.CREATED).json({
+    success: true,
+    msg: `CompanyModel ${company.name} succesfully registered`,
+    user: { name: company.name, email: company.email },
+    token,
+  })
 }
 
 const login = async (req, res) => {
-  res.send('company login router')
+  const { email, password } = req.body
+  if (!email || !password) {
+    throw new BadRequestError('Please provide email & password')
+  }
+
+  const company = await CompanyModel.findOne({ email })
+  if (!company) {
+    throw new UnauthenticatedError(`No account found with email '${email}'`)
+  }
+
+  // comparing password
+  const isPasswordCorrect = await company.comparePassword(password)
+  if (!isPasswordCorrect) {
+    throw new UnauthenticatedError('Password does not match')
+  }
+
+  // creating token
+  const token = company.createJWT()
+  res.status(StatusCodes.OK).json({
+    success: true,
+    msg: `Logged in as '${company.name}'`,
+    user: { name: company.name, email: company.email },
+    token,
+  })
 }
 
 module.exports = {
