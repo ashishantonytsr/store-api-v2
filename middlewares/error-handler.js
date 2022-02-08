@@ -8,3 +8,5 @@ const errorHandlerMiddleware = async (err, req, res, next)=>{
 	}
 	return res.status(errorObj.statusCode).json({ success: false, msg: errorObj.msg })
 }
+
+module.exports = errorHandlerMiddleware
