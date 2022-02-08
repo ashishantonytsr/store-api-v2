@@ -6,6 +6,9 @@ const app = express()
 // imports
 const connectDB = require('./db/connect')
 
+// middlewares
+app.use(express.json())
+
 // routes
 app.get('/', (req,res)=>{
 	res.send('store-api-v2')
