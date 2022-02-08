@@ -1,4 +1,5 @@
 const mongoose = require('mongoose')
+const jwt = require('jsonwebtoken')
 const bcrypt = require('bcryptjs')
 
 const CompanySchema = new mongoose.Schema({
@@ -45,6 +46,15 @@ CompanySchema.pre('save', async function (next) {
 CompanySchema.methods.comparePassword = async function (candidatePassword) {
   const isMatch = await bcrypt.compare(candidatePassword, this.password)
   return isMatch
+}
+
+// to create jwt
+CompanySchema.methods.createJWT = function () {
+  return (token = jwt.sign(
+    { userId: this._id, name: this.name, email: this.email },
+    process.env.JWT_SECRET,
+    { expiresIn: process.env.JWT_LIFETIME }
+  ))
 }
 
 module.exports = mongoose.model('Company', CompanySchema)
