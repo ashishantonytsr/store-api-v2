@@ -3,10 +3,19 @@ require('express-async-errors')
 const express = require('express')
 const app = express()
 
-// imports
+// extra security packages import
+
+// connect db
 const connectDB = require('./db/connect')
 
-// middlewares
+// routers import
+
+// middlewares import
+const errorHandlerMiddleware = require('./middlewares/error-handler')
+const notFoundMiddleware = require('./middlewares/not-found')
+
+
+// json middleware
 app.use(express.json())
 
 // routes
@@ -14,8 +23,11 @@ app.get('/', (req,res)=>{
 	res.send('store-api-v2')
 })
 
-const port = process.env.PORT
+// middlewares
+app.use(errorHandlerMiddleware)
+app.use(notFoundMiddleware)
 
+const port = process.env.PORT
 const start = async()=>{
 	try {
 		console.log('Connecting to Database...');
