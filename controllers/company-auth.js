@@ -35,7 +35,7 @@ const login = async (req, res) => {
   const token = company.createJWT()
   res.status(StatusCodes.OK).json({
     success: true,
-    msg: `Logged in as '${company.name}'`,
+    msg: `Successfully logged in`,
     user: { name: company.name, email: company.email },
     token,
   })
