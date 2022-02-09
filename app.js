@@ -13,16 +13,16 @@ const companyAuth = require('./routes/company-auth')
 const userAuth = require('./routes/user-auth')
 const productsRoute = require('./routes/products')
 
+// json middleware
+app.use(express.json())
+
 // middlewares import
 const errorHandlerMiddleware = require('./middlewares/error-handler')
 const notFoundMiddleware = require('./middlewares/not-found')
 
-// json middleware
-app.use(express.json())
-
 // routes
 app.get('/', (req, res) => {
-  res.send('store-api-v2')
+  res.send("<h1>Store-api-v2</h1><a href='/api/v2/auth/login'>login page</a>")
 })
 app.use('/api/v2/company/auth', companyAuth)
 app.use('/api/v2/auth', userAuth)
