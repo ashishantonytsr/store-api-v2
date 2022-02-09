@@ -51,7 +51,7 @@ CompanySchema.methods.comparePassword = async function (candidatePassword) {
 // to create jwt
 CompanySchema.methods.createJWT = function () {
   return (token = jwt.sign(
-    { userId: this._id, name: this.name, email: this.email },
+    { companyId: this._id, name: this.name, email: this.email },
     process.env.JWT_SECRET,
     { expiresIn: process.env.JWT_LIFETIME }
   ))
