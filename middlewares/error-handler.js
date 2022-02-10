@@ -7,13 +7,12 @@ const errorHandlerMiddleware = async (err, req, res, next) => {
     msg: err.message || 'Something went wrong.. Try later...',
   }
 
-  // duplicate email error
-  // TODO: dynamically display field
+  // duplication error
   if (err.code && err.code == 11000) {
+    const field = Object.keys(err.keyValue)
+    const value = Object.values(err.keyValue)
     errorObj.statusCode = StatusCodes.BAD_REQUEST
-    errorObj.msg = `Email '${Object.values(
-      err.keyValue
-    )}' is already registered`
+    errorObj.msg = `'${field}' '${value}' is already registered`
   }
 
   // validation error
