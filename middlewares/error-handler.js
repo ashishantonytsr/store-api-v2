@@ -8,6 +8,7 @@ const errorHandlerMiddleware = async (err, req, res, next) => {
   }
 
   // duplicate email error
+  // TODO: dynamically display field
   if (err.code && err.code == 11000) {
     errorObj.statusCode = StatusCodes.BAD_REQUEST
     errorObj.msg = `Email '${Object.values(
@@ -18,11 +19,13 @@ const errorHandlerMiddleware = async (err, req, res, next) => {
   // validation error
   if (err.name === 'ValidationError') {
     const fields = Object.keys(err.errors)
-    console.log(fields)
     errorObj.statusCode = StatusCodes.BAD_REQUEST
     errorObj.msg = `Please provide ${fields}`
   }
 
+  // TODO: include cast errors
+
+  // TODO: remove errorObj from res in production
   return res
     .status(errorObj.statusCode)
     .json({ success: false, msg: errorObj.msg, errObj: err })
