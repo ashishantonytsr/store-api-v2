@@ -17,6 +17,7 @@ const productsRoute = require('./routes/products')
 app.use(express.json())
 
 // middlewares import
+const { authMiddleware } = require('./middlewares/company-auth')
 const errorHandlerMiddleware = require('./middlewares/error-handler')
 const notFoundMiddleware = require('./middlewares/not-found')
 
@@ -26,7 +27,7 @@ app.get('/', (req, res) => {
 })
 app.use('/api/v2/company/auth', companyAuth)
 app.use('/api/v2/auth', userAuth)
-app.use('/api/v2/products', productsRoute)
+app.use('/api/v2/products', authMiddleware, productsRoute)
 
 // middlewares
 app.use(errorHandlerMiddleware)
