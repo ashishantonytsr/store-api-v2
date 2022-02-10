@@ -1,3 +1,5 @@
+// TODO: use single auth file for user & company
+
 const jwt = require('jsonwebtoken')
 const { UnauthenticatedError } = require('../errors')
 
