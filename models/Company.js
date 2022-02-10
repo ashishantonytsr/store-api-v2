@@ -32,7 +32,7 @@ const CompanySchema = new mongoose.Schema({
     type: Number,
     required: [true, 'Please provide contact number'],
     minlength: 5,
-    // set unique: true
+    unique: true,
   },
 })
 

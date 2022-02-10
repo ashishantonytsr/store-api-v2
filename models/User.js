@@ -47,6 +47,7 @@ const UserSchema = new mongoose.Schema({
     type: Number,
     required: [true, 'Please provide contact number'],
     minlength: 5,
+    unique: true,
   },
   wishlist: [WishlistSchema],
   cart: [CartSchema],
