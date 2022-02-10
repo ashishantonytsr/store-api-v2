@@ -1,4 +1,6 @@
 const express = require('express')
+const router = express.Router()
+
 const { companyIdGenerate } = require('../middlewares/company-auth')
 const {
   createProduct,
@@ -6,10 +8,17 @@ const {
   getSingleProduct,
   updateProduct,
   deleteProduct,
-  getProductReviews,
 } = require('../controllers/products')
-const router = express.Router()
 
+const {
+  createProductReview,
+  getAllProductReviews,
+  getSingleProductReview,
+  updateProductReview,
+  deleteProductReview,
+} = require('../controllers/reviews')
+
+// product
 router.route('/').get(getAllProducts).post(companyIdGenerate, createProduct)
 router
   .route('/:id')
@@ -17,6 +26,12 @@ router
   .patch(updateProduct)
   .delete(deleteProduct)
 
-router.route('/:id/reviews').get(getProductReviews)
+// product reviews
+router.route('/:id/reviews').get(getAllProductReviews).post(createProductReview)
+router
+  .route('/:id/reviews/:reviewId')
+  .get(getSingleProductReview)
+  .patch(updateProductReview)
+  .delete(deleteProductReview)
 
 module.exports = router

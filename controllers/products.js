@@ -66,10 +66,6 @@ const getSingleProduct = async (req, res) => {
   res.status(StatusCodes.OK).json({ product })
 }
 
-const getProductReviews = async (req, res) => {
-  res.send('reviews on product x')
-}
-
 const createProduct = async (req, res) => {
   // TODO: check if customer can create product
 
@@ -108,7 +104,6 @@ const deleteProduct = async (req, res) => {
 module.exports = {
   getAllProducts,
   getSingleProduct,
-  getProductReviews,
   createProduct,
   updateProduct,
   deleteProduct,
