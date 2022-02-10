@@ -15,15 +15,16 @@ const authMiddleware = async (req, res, next) => {
   try {
     const payload = jwt.verify(token, process.env.JWT_SECRET)
 
-    const isCompany = Object.keys(payload).includes('companyId')
-    if (isCompany) {
-      req.user = { loggedAs: 'company', ...payload }
-    }
-    const isUser = Object.keys(payload).includes('userId')
-    if (isUser) {
-      req.user = { loggedAs: 'user', ...payload }
-    }
+    // const isCompany = Object.keys(payload).includes('companyId')
+    // if (isCompany) {
+    //   req.user = { loggedAs: 'company', ...payload }
+    // }
+    // const isUser = Object.keys(payload).includes('userId')
+    // if (isUser) {
+    //   req.user = { loggedAs: 'customer', ...payload }
+    // }
 
+    req.user = payload
     next()
   } catch (error) {
     console.log(error)
