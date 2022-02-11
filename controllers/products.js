@@ -1,9 +1,5 @@
 const { StatusCodes } = require('http-status-codes')
-const {
-  BadRequestError,
-  UnauthenticatedError,
-  NotFoundError,
-} = require('../errors')
+const { BadRequestError, NotFoundError } = require('../errors')
 const ProductModel = require('../models/Product')
 const CompanyModel = require('../models/Company')
 
@@ -60,7 +56,7 @@ const getSingleProduct = async (req, res) => {
   // }
 
   if (!product || product == '') {
-    throw new BadRequestError(`No product with id '${req.params.id}'`)
+    throw new NotFoundError(`Product not found`)
   }
 
   res.status(StatusCodes.OK).json({ product })
@@ -87,18 +83,62 @@ const createProduct = async (req, res) => {
   const product = await ProductModel.create(req.body)
   res.status(StatusCodes.CREATED).json({
     success: true,
-    msg: `Product '${product.title}' successfully added`,
+    msg: `Product  added successfully`,
     data: product,
   })
 }
 
 const updateProduct = async (req, res) => {
-  // check if there is a company with companyId
-  res.send('update products')
+  const { title, description, price, featured, category } = req.body
+  if (
+    title === '' ||
+    description === '' ||
+    price === '' ||
+    featured === '' ||
+    category === ''
+  ) {
+    throw new BadRequestError('Please provide values to be updated')
+  }
+
+  const isProductExist = await ProductModel.find({
+    _id: req.params.id,
+    company_id: req.user.companyId,
+  })
+  if (!isProductExist || isProductExist == '') {
+    throw new NotFoundError('Product not found')
+  }
+
+  const product = await ProductModel.findOneAndUpdate(
+    { _id: req.params.id, company_id: req.user.companyId },
+    req.body,
+    { new: true, runValidators: true }
+  )
+
+  res.status(StatusCodes.OK).json({
+    success: true,
+    msg: `Product updated successfully`,
+    data: product,
+  })
 }
 
 const deleteProduct = async (req, res) => {
-  res.send('delete product')
+  const isProductExist = await ProductModel.find({
+    _id: req.params.id,
+    company_id: req.user.companyId,
+  })
+  if (!isProductExist || isProductExist == '') {
+    throw new NotFoundError('Product not found')
+  }
+
+  await ProductModel.findOneAndDelete({
+    _id: req.params.id,
+    company_id: req.user.companyId,
+  })
+
+  res.status(StatusCodes.OK).json({
+    success: true,
+    msg: `Product deleted successfully`,
+  })
 }
 
 module.exports = {
