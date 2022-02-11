@@ -1,4 +1,5 @@
 const mongoose = require('mongoose')
+const jwt = require('jsonwebtoken')
 const bcrypt = require('bcryptjs')
 
 const WishlistSchema = new mongoose.Schema({
@@ -29,7 +30,7 @@ const UserSchema = new mongoose.Schema({
     required: [true, 'Please provide email'],
     minlength: 8,
     match: [
-      /^(([^<>()[]\\.,;:s@"]+(.[^<>()[]\\.,;:s@"]+)*)|(".+"))@(([[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}])|(([a-zA-Z-0-9]+.)+[a-zA-Z]{2,}))$/,
+      /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
       'Please provide valid email',
     ],
     unique: true,
@@ -66,4 +67,13 @@ UserSchema.methods.comparePassword = async function (candidatePassword) {
   return isMatch
 }
 
-module.exports = mongoose.model('Customer', CustomerSchema)
+// to create jsonWebToken
+UserSchema.methods.createJWT = function () {
+  return jwt.sign(
+    { userId: this._id, name: this.name, email: this.email },
+    process.env.JWT_SECRET,
+    { expiresIn: process.env.JWT_LIFETIME }
+  )
+}
+
+module.exports = mongoose.model('User', UserSchema)
