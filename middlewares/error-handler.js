@@ -16,6 +16,7 @@ const errorHandlerMiddleware = async (err, req, res, next) => {
   }
 
   // validation error
+  // TODO: deal with regex exp error spit
   if (err.name === 'ValidationError') {
     const fields = Object.keys(err.errors)
     errorObj.statusCode = StatusCodes.BAD_REQUEST

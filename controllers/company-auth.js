@@ -8,7 +8,7 @@ const register = async (req, res) => {
 
   res.status(StatusCodes.CREATED).json({
     success: true,
-    msg: `Company '${company.name}' succesfully registered`,
+    msg: `Company succesfully registered`,
     user: { name: company.name, email: company.email },
     token,
   })
@@ -22,7 +22,7 @@ const login = async (req, res) => {
 
   const company = await CompanyModel.findOne({ email })
   if (!company) {
-    throw new UnauthenticatedError(`No account found with email '${email}'`)
+    throw new NotFoundError(`No account found with email '${email}'`)
   }
 
   // comparing password
