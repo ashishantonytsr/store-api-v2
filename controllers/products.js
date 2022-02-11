@@ -18,11 +18,11 @@ const getAllProducts = async (req, res) => {
     }) // add queryObj
   }
 
-  // if (req.user.userId) {
-  //   products = await ProductModel.find({
-  //     // queryObj only
-  //   })
-  // }
+  if (req.user.userId) {
+    products = await ProductModel.find({
+      // queryObj only
+    })
+  }
 
   // if sort is provided as query params; sort products
   // if fields are provided as query params, select fields from product
@@ -48,12 +48,12 @@ const getSingleProduct = async (req, res) => {
     })
   }
 
-  // // if logged in as customer
-  // if (req.user.userId) {
-  //   product = await ProductModel.find({
-  //     '_id': { $eq: req.params.id },
-  //   })
-  // }
+  // if logged in as customer
+  if (req.user.userId) {
+    product = await ProductModel.find({
+      '_id': { $eq: req.params.id },
+    })
+  }
 
   if (!product || product == '') {
     throw new NotFoundError(`Product not found`)
@@ -65,9 +65,9 @@ const getSingleProduct = async (req, res) => {
 const createProduct = async (req, res) => {
   // TODO: check if customer can create product
 
-  // if (req.user.userId){
-  // 	throw new NotFoundError('Route does not exist')
-  // }
+  if (req.user.userId) {
+    throw new NotFoundError('Route does not exist')
+  }
 
   // duplicate validation
   const isDuplicate = await ProductModel.find({
@@ -88,7 +88,12 @@ const createProduct = async (req, res) => {
   })
 }
 
+// TODO: add dynamicity
 const updateProduct = async (req, res) => {
+  if (req.user.userId) {
+    throw new NotFoundError('Route does not exist')
+  }
+
   const { title, description, price, featured, category } = req.body
   if (
     title === '' ||
@@ -121,7 +126,12 @@ const updateProduct = async (req, res) => {
   })
 }
 
+// TODO: add dynamicity
 const deleteProduct = async (req, res) => {
+  if (req.user.userId) {
+    throw new NotFoundError('Route does not exist')
+  }
+
   const isProductExist = await ProductModel.find({
     _id: req.params.id,
     company_id: req.user.companyId,
