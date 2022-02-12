@@ -1,39 +1,103 @@
 const { StatusCodes } = require('http-status-codes')
-const { BadRequestError, NotFoundError } = require('../errors')
+const {
+  BadRequestError,
+  NotFoundError,
+  UnauthenticatedError,
+} = require('../errors')
 const ProductModel = require('../models/Product')
 const CompanyModel = require('../models/Company')
 
 const getAllProducts = async (req, res) => {
-  let products = {}
+  // query params
+  /* title
+   * company
+   * featured
+   *
+   * numericFilters = {price, rating}
+   *
+   * fields
+   * sort
+   * page
+   */
 
-  // init queryObj
-  // collect data from req.query
-  // validata data & add to queryObj
-  // if numericFilter: create operatormap
-  // replace <><=>= with $lt, $gt, $lte, $gte in numericFilters
+  const { name, company, featured, numericFilters, fields, sort } = req.query
 
-  if (req.user.companyId) {
-    products = await ProductModel.find({
-      'company_id': { $eq: req.user.companyId },
-    }) // add queryObj
+  const queryObj = {}
+
+  if (name) {
+    queryObj.title = { $regex: name, $options: 'i' }
   }
 
-  if (req.user.userId) {
-    products = await ProductModel.find({
-      // queryObj only
+  if (company) {
+    let companyId = await CompanyModel.find({ name: company }).select('_id')
+    if (!companyId || companyId == '') {
+      throw new NotFoundError('Company not found')
+    }
+    companyId = companyId[0]._id.toString()
+    queryObj.company_id = companyId
+  }
+
+  if (featured) {
+    queryObj.featured = featured == 'true' ? true : false
+  }
+
+  if (numericFilters) {
+    const operatorMap = {
+      '<': '$lt',
+      '>': '$gt',
+      '<=': '$lte',
+      '>=': '$gte',
+      '=': '$eq',
+    }
+    const regEx = /\b(<|>|<=|>=|=)\b/g
+
+    let filters = numericFilters.replace(
+      regEx,
+      (match) => `-${operatorMap[match]}-`
+    )
+
+    const options = ['price', 'rating']
+    filters = filters.split(',').map((item) => {
+      const [field, operator, value] = item.split('-')
+      if (options.includes(field)) {
+        queryObj[field] = { [operator]: Number(value) }
+      }
     })
   }
 
-  // if sort is provided as query params; sort products
-  // if fields are provided as query params, select fields from product
-  // if page/limit is provided,
-  // create skip as (page -1)* limit
-  // products.limit().skip()
+  // if logged in as company
+  if (req.user.companyId) {
+    if (queryObj.company_id && queryObj.company_id != req.user.companyId) {
+      throw new UnauthenticatedError(
+        'Not authorized to fetch product from another company'
+      )
+    }
+  }
+
+  let products = await ProductModel.find(queryObj)
+
+  // if (sort) {
+  //   const sortList = sort.split(',').join(' ')
+  //   products = products.sort(sortList)
+  // } else {
+  //   products = await products.sort('createdAt')
+  // }
+
+  // if (fields) {
+  //   const fieldsList = fields.split(',').join(' ')
+  //   products = products.select(fieldsList)
+  // }
+
+  // const page = Number(req.query.page) || 1
+  // const limit = Number(req.query.limit) || 10
+  // const skip = (page - 1) * limit
+
+  // products = await products.limit(limit).skip(skip)
 
   res.status(StatusCodes.OK).json({
     success: true,
     count: products.length,
-    product: products,
+    products: products,
   })
 }
 
@@ -94,6 +158,7 @@ const updateProduct = async (req, res) => {
     throw new NotFoundError('Route does not exist')
   }
 
+  // TODO: if other than this fields, throw error
   const { title, description, price, featured, category } = req.body
   if (
     title === '' ||
