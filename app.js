@@ -26,7 +26,7 @@ app.get('/', (req, res) => {
   res.send("<h1>Store-api-v2</h1><a href='/api/v2/auth/login'>login page</a>")
 })
 app.use('/api/v2/company/auth', companyAuth)
-app.use('/api/v2/auth', userAuth)
+app.use('/api/v2/user/auth', userAuth)
 app.use('/api/v2/products', authMiddleware, productsRoute)
 
 // middlewares
