@@ -1,9 +1,5 @@
 const { StatusCodes } = require('http-status-codes')
-const {
-  BadRequestError,
-  UnauthenticatedError,
-  NotFoundError,
-} = require('../errors')
+const { BadRequestError, UnauthenticatedError, NotFoundError } = require('../errors')
 const CompanyModel = require('../models/Company')
 const ProductModel = require('../models/Product')
 
@@ -48,21 +44,23 @@ const login = async (req, res) => {
 
 // company profile routes
 const getProfile = async (req, res) => {
-  if (req.user.companyId != req.params.id) {
+  if (!req.user.companyId) {
     throw new UnauthenticatedError('Unauthorized to access this route')
   }
-  const company = await CompanyModel.find({ _id: req.params.id }).select(
-    '-password'
-  )
-  if (!company || company == '') {
-    throw new NotFoundError('Company not found')
+  if (req.user.companyId != req.params.id) {
+    throw new NotFoundError('Invalid company id')
   }
+  const company = await CompanyModel.findOne({ _id: req.params.id }).select('-password')
+
   res.status(StatusCodes.OK).json({ success: true, data: company })
 }
 
 const updateProfile = async (req, res) => {
-  if (req.user.companyId != req.params.id) {
+  if (!req.user.companyId) {
     throw new UnauthenticatedError('Unauthorized to access this route')
+  }
+  if (req.user.companyId != req.params.id) {
+    throw new NotFoundError('Invalid company id')
   }
 
   // TODO: update route to update password
@@ -76,48 +74,28 @@ const updateProfile = async (req, res) => {
     if (isDuplicate) {
       throw new BadRequestError(`Company with name '${name}' already exists`)
     }
-    queryObj.name = name
-  }
-
-  if (email) {
-    // if duplicate email found, mongoose throw error
-    queryObj.email = email
-  }
-
-  if (contact_number) {
-    // if duplicate contact_number found, mongoose throw error
-    queryObj.contact_number = contact_number
-  }
-
-  if (address) {
-    queryObj.address = address
   }
 
   const company = await CompanyModel.findOneAndUpdate(
     { _id: req.params.id },
-    queryObj,
+    { name, email, contact_number, address },
     { new: true, runValidators: true }
   ).select('-password')
 
-  if (!company || company == '') {
-    throw new NotFoundError('Company not found')
-  }
-
-  res
-    .status(StatusCodes.OK)
-    .json({ success: true, msg: `Company updated successfully`, data: company })
+  res.status(StatusCodes.OK).json({ success: true, msg: `Company updated successfully`, data: company })
 }
 
 const deleteProfile = async (req, res) => {
-  if (req.user.companyId != req.params.id) {
+  if (!req.user.companyId) {
     throw new UnauthenticatedError('Unauthorized to access this route')
+  }
+  if (req.user.companyId != req.params.id) {
+    throw new NotFoundError('Invalid company id')
   }
 
   const company = await CompanyModel.findByIdAndDelete(req.params.id)
-  if (!company || company == '') {
-    throw new NotFoundError('Company not found')
-  }
   const products = await ProductModel.deleteMany({ company_id: req.params.id })
+
   res.status(StatusCodes.OK).json({
     success: true,
     msg: `Company deleted successfully`,
