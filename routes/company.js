@@ -1,14 +1,6 @@
-// TODO: use one file for authentication; both from user side & company side
-
 const express = require('express')
 const router = express.Router()
-const {
-  register,
-  login,
-  getProfile,
-  updateProfile,
-  deleteProfile,
-} = require('../controllers/company')
+const { register, login, getProfile, updateProfile, deleteProfile } = require('../controllers/company')
 
 const { authMiddleware } = require('../middlewares/company-auth')
 

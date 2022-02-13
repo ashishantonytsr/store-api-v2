@@ -7,6 +7,12 @@ const {
   getProfile,
   updateProfile,
   deleteProfile,
+  getWishlist,
+  createWishlistItem,
+  deleteWishlistItem,
+  getCartItems,
+  createCartItem,
+  deleteCartItem,
 } = require('../controllers/user')
 
 const { authMiddleware } = require('../middlewares/company-auth')
@@ -22,31 +28,11 @@ router
   .delete(authMiddleware, deleteProfile)
 
 // user wishlist
-router
-  .route('/:id/wishlist')
-  .get((req, res) => {
-    res.send('user get wishlist')
-  })
-  .post((req, res) => {
-    res.send('user add wishlist')
-  })
-
-router.route('/:id/wishlist/:itemid').delete((req, res) => {
-  res.send('user delete wishlist')
-})
+router.route('/:id/wishlist').get(authMiddleware, getWishlist).post(authMiddleware, createWishlistItem)
+router.route('/:id/wishlist/:itemid').delete(authMiddleware, deleteWishlistItem)
 
 // user cart
-router
-  .route('/:id/cart')
-  .get((req, res) => {
-    res.send('user get cart')
-  })
-  .post((req, res) => {
-    res.send('user add cart')
-  })
-
-router.route('/:id/cart/:itemid').delete((req, res) => {
-  res.send('user delete cart')
-})
+router.route('/:id/cart').get(authMiddleware, getCartItems).post(authMiddleware, createCartItem)
+router.route('/:id/cart/:itemid').delete(authMiddleware, deleteCartItem)
 
 module.exports = router
