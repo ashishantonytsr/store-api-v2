@@ -45,7 +45,23 @@ const login = async (req, res) => {
   })
 }
 
+// user profile
+const getProfile = async (req, res) => {
+  res.send('user profile')
+}
+
+const updateProfile = async (req, res) => {
+  res.send('user profile update')
+}
+
+const deleteProfile = async (req, res) => {
+  res.send('user profile delete')
+}
+
 module.exports = {
   register,
   login,
+  getProfile,
+  updateProfile,
+  deleteProfile,
 }
