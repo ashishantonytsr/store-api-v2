@@ -1,5 +1,9 @@
 const { StatusCodes } = require('http-status-codes')
-const { BadRequestError, UnauthenticatedError } = require('../errors')
+const {
+  BadRequestError,
+  UnauthenticatedError,
+  NotFoundError,
+} = require('../errors')
 const CompanyModel = require('../models/Company')
 
 const register = async (req, res) => {
@@ -41,7 +45,29 @@ const login = async (req, res) => {
   })
 }
 
+// company profile
+const getProfile = async (req, res) => {
+  if (req.user.companyId != req.params.id) {
+    throw new UnauthenticatedError('Unauthorized to view company')
+  }
+  const company = await CompanyModel.find({ _id: req.params.id }).select(
+    '-password'
+  )
+  res.status(StatusCodes.OK).json({ success: true, data: company })
+}
+
+const updateProfile = async (req, res) => {
+  res.send('company profile update')
+}
+
+const deleteProfile = async (req, res) => {
+  res.send('company profile delete')
+}
+
 module.exports = {
   register,
   login,
+  getProfile,
+  updateProfile,
+  deleteProfile,
 }
