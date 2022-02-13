@@ -9,8 +9,8 @@ const app = express()
 const connectDB = require('./db/connect')
 
 // routers import
-const companyAuth = require('./routes/company-auth')
-const userAuth = require('./routes/user-auth')
+const companyRoute = require('./routes/company')
+const userRoute = require('./routes/user')
 const productsRoute = require('./routes/products')
 
 // json middleware
@@ -25,8 +25,9 @@ const notFoundMiddleware = require('./middlewares/not-found')
 app.get('/', (req, res) => {
   res.send("<h1>Store-api-v2</h1><a href='/api/v2/auth/login'>login page</a>")
 })
-app.use('/api/v2/company/auth', companyAuth)
-app.use('/api/v2/user/auth', userAuth)
+
+app.use('/api/v2/company', companyRoute)
+app.use('/api/v2/user', userRoute)
 app.use('/api/v2/products', authMiddleware, productsRoute)
 
 // middlewares
