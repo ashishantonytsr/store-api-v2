@@ -1,6 +1,6 @@
 const { StatusCodes } = require('http-status-codes')
 const UserModel = require('../models/User')
-const { BadRequestError, UnauthenticatedError } = require('../errors')
+const { BadRequestError, UnauthenticatedError, NotFoundError } = require('../errors')
 
 const register = async (req, res) => {
   // Validation is done by mongoose at the time of insertion
@@ -47,15 +47,57 @@ const login = async (req, res) => {
 
 // user profile
 const getProfile = async (req, res) => {
-  res.send('user profile')
+  if (!req.user.userId) {
+    throw new UnauthenticatedError('Unauthorized to access this route')
+  }
+  if (req.user.userId != req.params.id) {
+    throw new NotFoundError('Invalid user id')
+  }
+
+  const user = await UserModel.findOne({ _id: req.params.id }).select('-password')
+
+  res.status(StatusCodes.OK).json({ success: true, data: user })
 }
 
 const updateProfile = async (req, res) => {
-  res.send('user profile update')
+  if (!req.user.userId) {
+    throw new UnauthenticatedError('Unauthorized to access this route')
+  }
+  if (req.user.userId != req.params.id) {
+    throw new NotFoundError('Invalid user id')
+  }
+
+  const { name, email, contact_number, address } = req.body
+  if (name == '' || email == '' || contact_number == '' || address == '') {
+    throw new BadRequestError('Please provide valid values')
+  }
+  const user = await UserModel.findOneAndUpdate(
+    { _id: req.params.id },
+    { name, email, contact_number, address },
+    { new: true, runValidators: true }
+  ).select('-password')
+
+  res.status(StatusCodes.OK).json({
+    success: true,
+    msg: `User updated successfully`,
+    data: user,
+  })
 }
 
 const deleteProfile = async (req, res) => {
-  res.send('user profile delete')
+  if (!req.user.userId) {
+    throw new UnauthenticatedError('Unauthorized to access this route')
+  }
+  if (req.user.userId != req.params.id) {
+    throw new NotFoundError('Invalid user id')
+  }
+
+  const user = await UserModel.findByIdAndDelete(req.params.id)
+
+  res.status(StatusCodes.OK).json({
+    success: true,
+    msg: `User deleted successfully`,
+  })
 }
 
 module.exports = {
