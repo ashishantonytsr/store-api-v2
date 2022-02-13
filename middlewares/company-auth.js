@@ -2,40 +2,46 @@
 
 const jwt = require('jsonwebtoken')
 const { UnauthenticatedError } = require('../errors')
+const CompanyModel = require('../models/Company')
+const UserModel = require('../models/User')
 
 const authMiddleware = async (req, res, next) => {
-  // check for token in req.headers
-  // add req.user with provided token
-
   const authHeader = req.headers.authorization
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     throw new UnauthenticatedError('Please provide a token')
   }
   const token = authHeader.split(' ')[1]
+
+  let payload = {}
   try {
-    const payload = jwt.verify(token, process.env.JWT_SECRET)
-
-    // const isCompany = Object.keys(payload).includes('companyId')
-    // if (isCompany) {
-    //   req.user = { loggedAs: 'company', ...payload }
-    // }
-    // const isUser = Object.keys(payload).includes('userId')
-    // if (isUser) {
-    //   req.user = { loggedAs: 'customer', ...payload }
-    // }
-
-    req.user = payload
-    next()
+    payload = jwt.verify(token, process.env.JWT_SECRET)
   } catch (error) {
+    // TODO: remove clg & update error msg
     console.log(error)
     throw new UnauthenticatedError('Invalid token')
   }
+
+  // check if company/user exists
+  if (payload.companyId) {
+    const company = await CompanyModel.findById(payload.companyId)
+    if (!company) {
+      throw new UnauthenticatedError('Please log in as valid company')
+    }
+  }
+
+  if (payload.userId) {
+    const user = await UserModel.findById(payload.userId)
+    if (!user) {
+      throw new UnauthenticatedError('Please log in as valid user')
+    }
+  }
+
+  req.user = payload
+  next()
 }
 
 // to generate company_id if not provided in req.body
 const companyIdGenerate = async (req, res, next) => {
-  // grad req.user.companyId
-  // add it to req.body
   if (!req.body.company_id) {
     const companyId = req.user.companyId
     req.body = { ...req.body, company_id: companyId }
