@@ -24,11 +24,13 @@ const errorHandlerMiddleware = async (err, req, res, next) => {
   }
 
   // TODO: include cast errors
+  if (err.name == 'CastError') {
+    errorObj.statusCode = StatusCodes.BAD_REQUEST
+    errorObj.msg = `Please provide valid ${err.path}`
+  }
 
   // TODO: remove errorObj from res in production
-  return res
-    .status(errorObj.statusCode)
-    .json({ success: false, msg: errorObj.msg, errObj: err })
+  return res.status(errorObj.statusCode).json({ success: false, msg: errorObj.msg, errObj: err })
 }
 
 module.exports = errorHandlerMiddleware
