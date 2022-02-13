@@ -7,6 +7,8 @@ const {
 const ProductModel = require('../models/Product')
 const CompanyModel = require('../models/Company')
 
+// FIX: if logged as company, & company doesnot exist, throw error
+
 const getAllProducts = async (req, res) => {
   // query params
   /* title
@@ -71,6 +73,9 @@ const getAllProducts = async (req, res) => {
       throw new UnauthenticatedError(
         'Not authorized to fetch product from another company'
       )
+    }
+    if (!company || company == '') {
+      queryObj.company_id = req.user.companyId
     }
   }
 
