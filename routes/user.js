@@ -1,19 +1,10 @@
 const express = require('express')
 const router = express.Router()
 
-const {
-  register,
-  login,
-  getProfile,
-  updateProfile,
-  deleteProfile,
-  getWishlist,
-  createWishlistItem,
-  deleteWishlistItem,
-  getCartItems,
-  createCartItem,
-  deleteCartItem,
-} = require('../controllers/user')
+const { register, login, getProfile, updateProfile, deleteProfile } = require('../controllers/user')
+
+const { getWishlist, createWishlistItem, deleteWishlistItem } = require('../controllers/wishlist')
+const { getCartItems, createCartItem, deleteCartItem } = require('../controllers/cart')
 
 const { authMiddleware } = require('../middlewares/company-auth')
 
