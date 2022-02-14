@@ -1,6 +1,6 @@
 const { StatusCodes } = require('http-status-codes')
-const UserModel = require('../models/User')
 const { BadRequestError, UnauthenticatedError, NotFoundError } = require('../errors')
+const UserModel = require('../models/User')
 
 const register = async (req, res) => {
   // Validation is done by mongoose at the time of insertion
@@ -40,7 +40,7 @@ const login = async (req, res) => {
   res.status(StatusCodes.OK).json({
     success: true,
     msg: `Successfully logged in`,
-    user: { name: user.name, email: user.email },
+    user: { user_id: user._id, name: user.name, email: user.email },
     token: token,
   })
 }
@@ -54,7 +54,7 @@ const getProfile = async (req, res) => {
     throw new NotFoundError('Invalid user id')
   }
 
-  const user = await UserModel.findOne({ _id: req.params.id }).select('-password')
+  const user = await UserModel.findOne({ _id: req.params.id }).select('-password -wishlist -cart')
 
   res.status(StatusCodes.OK).json({ success: true, data: user })
 }
