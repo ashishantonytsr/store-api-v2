@@ -2,22 +2,6 @@ const mongoose = require('mongoose')
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcryptjs')
 
-const WishlistSchema = new mongoose.Schema({
-  product_id: {
-    type: mongoose.Types.ObjectId,
-    ref: 'Product',
-    required: true,
-  },
-})
-
-const CartSchema = new mongoose.Schema({
-  product_id: {
-    type: mongoose.Types.ObjectId,
-    ref: 'Product',
-    required: true,
-  },
-})
-
 const UserSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -50,8 +34,6 @@ const UserSchema = new mongoose.Schema({
     minlength: 5,
     unique: true,
   },
-  wishlist: [WishlistSchema],
-  cart: [CartSchema],
 })
 
 // to hash password before storing
@@ -69,11 +51,9 @@ UserSchema.methods.comparePassword = async function (candidatePassword) {
 
 // to create jsonWebToken
 UserSchema.methods.createJWT = function () {
-  return jwt.sign(
-    { userId: this._id, name: this.name, email: this.email },
-    process.env.JWT_SECRET,
-    { expiresIn: process.env.JWT_LIFETIME }
-  )
+  return jwt.sign({ userId: this._id, name: this.name, email: this.email }, process.env.JWT_SECRET, {
+    expiresIn: process.env.JWT_LIFETIME,
+  })
 }
 
 module.exports = mongoose.model('User', UserSchema)
