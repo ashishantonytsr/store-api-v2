@@ -20,16 +20,12 @@ const {
 
 // product
 router.route('/').get(getAllProducts).post(companyIdGenerate, createProduct)
-router
-  .route('/:id')
-  .get(getSingleProduct)
-  .patch(updateProduct)
-  .delete(deleteProduct)
+router.route('/:id').get(getSingleProduct).patch(updateProduct).delete(deleteProduct)
 
 // product reviews
 router.route('/:id/reviews').get(getAllProductReviews).post(createProductReview)
 router
-  .route('/:id/reviews/:reviewId')
+  .route('/:id/reviews/:reviewid')
   .get(getSingleProductReview)
   .patch(updateProductReview)
   .delete(deleteProductReview)
