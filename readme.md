@@ -10,3 +10,5 @@ JWT_LIFETIME
 	node install
 
 	node app.js
+	
+
